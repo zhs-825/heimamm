@@ -1,10 +1,10 @@
 <template>
-  <div>App.vue</div>
+  <router-view></router-view>
 </template>
 
 <script>
 export default {
-  name:"app"
+  name:'app'
 }
 </script>
 
