@@ -96,7 +96,7 @@
         <el-form-item label="图形码" :label-width="formLabelWidth">
           <el-row>
             <el-col :span="16">
-              <el-input v-model="registerForm.code" autocomplete="off"></el-input>
+              <el-input v-model.trim="registerForm.captchaCode" autocomplete="off"></el-input>
             </el-col>
             <el-col :span="7" :offset="1">
               <img :src="zhuceCaptcha" @click="zhuceCaptchaClick" alt class="captcha" />
@@ -109,7 +109,7 @@
               <el-input v-model="registerForm.rcode" autocomplete="off"></el-input>
             </el-col>
             <el-col :span="6" :offset="1">
-              <el-button type="primary" @click="getMessage">获取用户验证码</el-button>
+              <el-button :disabled="ISdisabled" type="primary" @click="getMessage" >{{btnValue}}</el-button>
             </el-col>
           </el-row>
         </el-form-item>
@@ -172,22 +172,25 @@ export default {
         elim: "",
         phone: "",
         password: "",
-        code: "", //图形码
+        captchaCode: "", //图形码
         rcode: "" //短信验证码
       },
       imageUrl: "", //上传图片
+      dialogTableVisible: false,
       dialogFormVisible: false,
       formLabelWidth: "67px",
-      zhuceCaptcha: "http://183.237.67.218:3002/captcha?type=login", //注册验证码
-      checked: true //按钮 是否选择
+      zhuceCaptcha: "http://183.237.67.218:3002/captcha?type=sendsms", //注册验证码
+      checked: true, //按钮 是否选择
+      btnValue:"获取短信验证码",
+      ISdisabled:false,//按钮是否禁用
     };
   },
   methods: {
     /* 注册 验证码切换 */
     zhuceCaptchaClick() {
-      this.zhuceCaptcha = `http://183.237.67.218:3002/captcha?type=login&${Date.now()}`;
+      this.zhuceCaptcha = `http://183.237.67.218:3002/captcha?type=sendsms&${Date.now()}`;
     },
-    /* 获取用户验证码 */
+    /* 获取用户手机验证码 */
     getMessage() {
       //非空判断
       if (this.registerForm.phone.trim() == "") {
@@ -197,14 +200,15 @@ export default {
         let res = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
         if (!res.test(this.registerForm.phone)) {
           this.$message.warning("哥们!手机号码是不是写错了呀!");
+          return;
         } else {
           //1.axios方法使用
           axios({
             url: "http://183.237.67.218:3002/sendsms",
             method: "post",
             data: {
-              code: this.registerForm.code,
-              phone: this.registerForm.phone
+              "code": this.registerForm.captchaCode,
+              "phone": this.registerForm.phone
             },
             // 跨域携带cookie
             withCredentials: true
@@ -213,7 +217,21 @@ export default {
           });
         }
       }
+      /* 获取用户手机验证码 计时 */
+      let time=60
+     let steID=setInterval(()=>{
+         this.ISdisabled=true;
+        time--;
+        this.btnValue=`${time}后可以再次获取`
+        if(time==0){
+          clearInterval(steID);
+          this.ISdisabled=false;
+          this.btnValue=`获取短信验证码`
+        }
+      },1000)
     },
+    
+
     /* 文件上传成功之后会触发的回调函数 */
     handleAvatarSuccess(res, file) {
       this.imageUrl = URL.createObjectURL(file.raw);
