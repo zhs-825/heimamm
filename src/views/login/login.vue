@@ -72,7 +72,8 @@
         <el-form-item label="头像" :label-width="formLabelWidth">
           <el-upload
             class="avatar-uploader"
-            action="https://jsonplaceholder.typicode.com/posts/"
+            action="http://183.237.67.218:3002/uploads"
+            name="image"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
@@ -85,7 +86,7 @@
           <el-input v-model="registerForm.name" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" :label-width="formLabelWidth">
-          <el-input v-model="registerForm.elim" autocomplete="off"></el-input>
+          <el-input v-model="registerForm.email" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="手机" :label-width="formLabelWidth">
           <el-input v-model="registerForm.phone" autocomplete="off"></el-input>
@@ -116,7 +117,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        <el-button type="primary" @click="registerClick">注 册</el-button>
       </div>
     </el-dialog>
   </div>
@@ -169,11 +170,12 @@ export default {
       //注册对话框数据
       registerForm: {
         name: "",
-        elim: "",
+        email: "",
         phone: "",
         password: "",
         captchaCode: "", //图形码
-        rcode: "" //短信验证码
+        rcode: "", //短信验证码
+        avatar:"" //头像地址
       },
       imageUrl: "", //上传图片
       dialogTableVisible: false,
@@ -186,6 +188,26 @@ export default {
     };
   },
   methods: {
+    // 注册按钮点击事件
+    registerClick(){
+      //1.axios方法使用
+      axios({
+        url:'http://183.237.67.218:3002/register',
+        method:'post',
+        data:{
+          name:this.registerForm.name,
+          phone:this.registerForm.phone,
+          email:this.registerForm.email,
+          password:this.registerForm.password,
+          rcode:this.registerForm.rcode,
+          avatar:this.registerForm.avatar
+        },
+       
+        }).then(res=>{
+        //成功回调
+        window.console.log(res)
+      });
+    },
     /* 注册 验证码切换 */
     zhuceCaptchaClick() {
       this.zhuceCaptcha = `http://183.237.67.218:3002/captcha?type=sendsms&${Date.now()}`;
@@ -235,6 +257,8 @@ export default {
     /* 文件上传成功之后会触发的回调函数 */
     handleAvatarSuccess(res, file) {
       this.imageUrl = URL.createObjectURL(file.raw);
+      window.console.log(res)
+      this.registerForm.avatar=res.data.file_path
     },
     /* 文件上传之前对文件做的一些限制 */
     beforeAvatarUpload(file) {
