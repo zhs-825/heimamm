@@ -17,30 +17,32 @@
          style="width:auto" 让宽度自适应 被内容撑开
       -->
       <el-aside width="200px" class="aside" style="width:auto">
-        <el-menu default-active="5" class="el-menu-vertical-demo" :collapse="isCollapse">
-          <el-menu-item index="1">
+        <el-menu default-active="5" class="el-menu-vertical-demo" :collapse="isCollapse" router >
+          <el-menu-item index="information">
             <i class="el-icon-pie-chart"></i>
             <span slot="title">数据概览</span>
           </el-menu-item>
-          <el-menu-item index="2">
+          <el-menu-item index="users">
             <i class="el-icon-user"></i>
             <span slot="title">用户列表</span>
           </el-menu-item>
-          <el-menu-item index="3">
+          <el-menu-item index="question">
             <i class="el-icon-edit-outline"></i>
             <span slot="title">题库列表</span>
           </el-menu-item>
-          <el-menu-item index="4">
+          <el-menu-item index="subject">
             <i class="el-icon-office-building"></i>
             <span slot="title">企业列表</span>
           </el-menu-item>
-          <el-menu-item index="5">
+          <el-menu-item index="enterprise">
             <i class="el-icon-notebook-2"></i>
             <span slot="title">学科列表</span>
           </el-menu-item>
         </el-menu>
       </el-aside>
-      <el-main class="main">Main</el-main>
+      <el-main class="main">
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -69,7 +71,7 @@ export default {
       .el-icon-s-fold {
         font-size: 24px;
         margin-right: 22px;
-         transition: .7s;
+        transition: 0.7s;
       }
       .logo {
         width: 33px;
@@ -110,8 +112,8 @@ export default {
     width: 200px;
     min-height: 400px;
   }
-  .rotate{
-    transform: rotate(-90deg)
+  .rotate {
+    transform: rotate(-90deg);
   }
 }
 </style>
