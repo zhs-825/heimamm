@@ -1,6 +1,9 @@
 import Vue from 'vue'
 import App from './App.vue'
 
+/* 导入全局样式 */
+import './style/base.css';
+
 Vue.config.productionTip = false
 /* 导入element-ui */
 import ElementUI from 'element-ui';

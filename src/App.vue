@@ -1,8 +1,8 @@
 <template>
-  <div>
+  
     <router-view></router-view>
-    <el-button type="success">成功按钮</el-button>
-  </div>
+    <!-- <el-button type="success">成功按钮</el-button> -->
+  
 </template>
 
 <script>
