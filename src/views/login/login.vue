@@ -68,7 +68,7 @@
 
     <!-- 注册对话框 -->
     <el-dialog title="用户注册" class="dialog" :visible.sync="dialogFormVisible">
-      <el-form :model="registerForm">
+      <el-form :model="registerForm" :rules="registerRules">
         <el-form-item label="头像" :label-width="formLabelWidth">
           <el-upload
             class="avatar-uploader"
@@ -82,13 +82,13 @@
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </el-form-item>
-        <el-form-item label="昵称" :label-width="formLabelWidth">
+        <el-form-item label="昵称" :label-width="formLabelWidth" prop="name">
           <el-input v-model="registerForm.name" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" :label-width="formLabelWidth">
+        <el-form-item label="邮箱" :label-width="formLabelWidth" prop="email">
           <el-input v-model="registerForm.email" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="手机" :label-width="formLabelWidth">
+        <el-form-item label="手机" :label-width="formLabelWidth" >
           <el-input v-model="registerForm.phone" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" :label-width="formLabelWidth">
@@ -142,6 +142,18 @@ export default {
         }
       }
     };
+    var checkEmail = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error("邮箱不能为空哦!"));
+      } else {
+        let res =/\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
+        if (res.test(value)) {
+          callback();
+        } else {
+          callback(new Error("邮箱格式不对喔!"));
+        }
+      }
+    };
     return {
       // 登录表单数据
       loginForm: {
@@ -177,6 +189,15 @@ export default {
         rcode: "", //短信验证码
         avatar:"" //头像地址
       },
+       // 注册验证规则
+      registerRules: {
+        name: [
+          //required 最左边红色**
+          { required: true, message: "名字不能为空" },
+        ],
+        email:[{ validator: checkEmail,required: true, }],
+      },
+      
       imageUrl: "", //上传图片
       dialogTableVisible: false,
       dialogFormVisible: false,
