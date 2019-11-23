@@ -35,6 +35,11 @@ const routes = [
         ]
     }
 ]
+// 解决两次访问相同路由地址报错
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 //创建路由实例
 const router = new VueRouter({
     routes

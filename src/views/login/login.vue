@@ -88,7 +88,7 @@
         <el-form-item label="邮箱" :label-width="formLabelWidth" prop="email">
           <el-input v-model="registerForm.email" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="手机" :label-width="formLabelWidth" >
+        <el-form-item label="手机" :label-width="formLabelWidth">
           <el-input v-model="registerForm.phone" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" :label-width="formLabelWidth">
@@ -110,7 +110,7 @@
               <el-input v-model="registerForm.rcode" autocomplete="off"></el-input>
             </el-col>
             <el-col :span="6" :offset="1">
-              <el-button :disabled="ISdisabled" type="primary" @click="getMessage" >{{btnValue}}</el-button>
+              <el-button :disabled="ISdisabled" type="primary" @click="getMessage">{{btnValue}}</el-button>
             </el-col>
           </el-row>
         </el-form-item>
@@ -125,8 +125,10 @@
 
 
 <script>
+// 导入抽取的api 方法
+import { login, register, sendsms } from "../../api/api.js";
 //导入axios
-import axios from "axios";
+// import axios from "axios";
 export default {
   name: "login",
   data() {
@@ -146,7 +148,7 @@ export default {
       if (!value) {
         callback(new Error("邮箱不能为空哦!"));
       } else {
-        let res =/\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
+        let res = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
         if (res.test(value)) {
           callback();
         } else {
@@ -187,46 +189,53 @@ export default {
         password: "",
         captchaCode: "", //图形码
         rcode: "", //短信验证码
-        avatar:"" //头像地址
+        avatar: "" //头像地址
       },
-       // 注册验证规则
+      // 注册验证规则
       registerRules: {
         name: [
           //required 最左边红色**
-          { required: true, message: "名字不能为空" },
+          { required: true, message: "名字不能为空" }
         ],
-        email:[{ validator: checkEmail,required: true, }],
+        email: [{ validator: checkEmail, required: true }]
       },
-      
+
       imageUrl: "", //上传图片
       dialogTableVisible: false,
       dialogFormVisible: false,
       formLabelWidth: "67px",
       zhuceCaptcha: "http://183.237.67.218:3002/captcha?type=sendsms", //注册验证码
       checked: true, //按钮 是否选择
-      btnValue:"获取短信验证码",
-      ISdisabled:false,//按钮是否禁用
+      btnValue: "获取短信验证码",
+      ISdisabled: false //按钮是否禁用
     };
   },
   methods: {
     // 注册按钮点击事件
-    registerClick(){
+    registerClick() {
       //1.axios方法使用
-      axios({
-        url:'http://183.237.67.218:3002/register',
-        method:'post',
-        data:{
-          name:this.registerForm.name,
-          phone:this.registerForm.phone,
-          email:this.registerForm.email,
-          password:this.registerForm.password,
-          rcode:this.registerForm.rcode,
-          avatar:this.registerForm.avatar
-        },
-       
-        }).then(res=>{
+      // axios({
+      //   url: "http://183.237.67.218:3002/register",
+      //   method: "post",
+      //   data: {
+      //     name: this.registerForm.name,
+      //     phone: this.registerForm.phone,
+      //     email: this.registerForm.email,
+      //     password: this.registerForm.password,
+      //     rcode: this.registerForm.rcode,
+      //     avatar: this.registerForm.avatar
+      //   }
+      // })
+      register({
+        name: this.registerForm.name,
+        phone: this.registerForm.phone,
+        email: this.registerForm.email,
+        password: this.registerForm.password,
+        rcode: this.registerForm.rcode,
+        avatar: this.registerForm.avatar
+      }).then(res => {
         //成功回调
-        window.console.log(res)
+        window.console.log(res);
       });
     },
     /* 注册 验证码切换 */
@@ -246,40 +255,43 @@ export default {
           return;
         } else {
           //1.axios方法使用
-          axios({
-            url: "http://183.237.67.218:3002/sendsms",
-            method: "post",
-            data: {
-              "code": this.registerForm.captchaCode,
-              "phone": this.registerForm.phone
-            },
-            // 跨域携带cookie
-            withCredentials: true
+          // axios({
+          //   url: "http://183.237.67.218:3002/sendsms",
+          //   method: "post",
+          //   data: {
+          //     code: this.registerForm.captchaCode,
+          //     phone: this.registerForm.phone
+          //   },
+          //   // 跨域携带cookie
+          //   withCredentials: true
+          // })
+          sendsms({
+            code: this.registerForm.captchaCode,
+            phone: this.registerForm.phone
           }).then(res => {
             window.console.log(res);
           });
         }
       }
       /* 获取用户手机验证码 计时 */
-      let time=60
-     let steID=setInterval(()=>{
-         this.ISdisabled=true;
+      let time = 60;
+      let steID = setInterval(() => {
+        this.ISdisabled = true;
         time--;
-        this.btnValue=`${time}后可以再次获取`
-        if(time==0){
+        this.btnValue = `${time}后可以再次获取`;
+        if (time == 0) {
           clearInterval(steID);
-          this.ISdisabled=false;
-          this.btnValue=`获取短信验证码`
+          this.ISdisabled = false;
+          this.btnValue = `获取短信验证码`;
         }
-      },1000)
+      }, 1000);
     },
-    
 
     /* 文件上传成功之后会触发的回调函数 */
     handleAvatarSuccess(res, file) {
       this.imageUrl = URL.createObjectURL(file.raw);
-      window.console.log(res)
-      this.registerForm.avatar=res.data.file_path
+      window.console.log(res);
+      this.registerForm.avatar = res.data.file_path;
     },
     /* 文件上传之前对文件做的一些限制 */
     beforeAvatarUpload(file) {
@@ -306,15 +318,20 @@ export default {
         if (valid) {
           // alert("submit!");
           //1.axios方法使用
-          axios({
-            url: `http://183.237.67.218:3002/login`,
-            method: "post",
-            data: {
-              phone: this.loginForm.phone,
-              password: this.loginForm.password,
-              code: this.loginForm.captcha
-            },
-            withCredentials: true
+          // axios({
+          //   url: `http://183.237.67.218:3002/login`,
+          //   method: "post",
+          //   data: {
+          //     phone: this.loginForm.phone,
+          //     password: this.loginForm.password,
+          //     code: this.loginForm.captcha
+          //   },
+          //   withCredentials: true
+          // })
+          login({
+            phone: this.loginForm.phone,
+            password: this.loginForm.password,
+            code: this.loginForm.captcha
           }).then(res => {
             //成功回调
             window.console.log(res);

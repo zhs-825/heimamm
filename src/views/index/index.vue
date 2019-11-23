@@ -18,23 +18,23 @@
       -->
       <el-aside width="200px" class="aside" style="width:auto">
         <el-menu default-active="5" class="el-menu-vertical-demo" :collapse="isCollapse" router >
-          <el-menu-item index="information">
+          <el-menu-item index="/index/information">
             <i class="el-icon-pie-chart"></i>
             <span slot="title">数据概览</span>
           </el-menu-item>
-          <el-menu-item index="users">
+          <el-menu-item index="/index/users">
             <i class="el-icon-user"></i>
             <span slot="title">用户列表</span>
           </el-menu-item>
-          <el-menu-item index="question">
+          <el-menu-item index="/index/question">
             <i class="el-icon-edit-outline"></i>
             <span slot="title">题库列表</span>
           </el-menu-item>
-          <el-menu-item index="subject">
+          <el-menu-item index="/index/subject">
             <i class="el-icon-office-building"></i>
             <span slot="title">企业列表</span>
           </el-menu-item>
-          <el-menu-item index="enterprise">
+          <el-menu-item index="/index/enterprise">
             <i class="el-icon-notebook-2"></i>
             <span slot="title">学科列表</span>
           </el-menu-item>
