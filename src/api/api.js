@@ -2,10 +2,10 @@
 import axios from 'axios';
 //导入路由
 import router from '../router/router.js'
-//导入Vue
-import Vue from 'vue'
+// 导入 element-ui的弹框
+import { Message } from "element-ui";
 //调用获取token方法
-import { getItem,removeItem } from '../utils/token.js'
+import { getItem, removeItem } from '../utils/token.js'
 
 // 统一设置 基地址
 axios.defaults.baseURL = 'http://183.237.67.218:3002';
@@ -29,6 +29,8 @@ axios.interceptors.request.use(function (config) {
 // axios 直接使用的.then之前
 // response 服务器响应的内容
 axios.interceptors.response.use(function (response) {
+    //判断token
+    // if (response.data.code == 0 && response.data.message.indexOf('token')!=-1) {
     if (response.data.code == 0) {
         //token有问题
         //删除token
@@ -36,7 +38,7 @@ axios.interceptors.response.use(function (response) {
         //退到登录页
         router.push("/login");
         //弹框
-        new Vue().$message.error("好小子,敢伪造token");
+        Message.error(response.data.message);
         return;
     }
     return response;
@@ -82,5 +84,50 @@ export function userInfo() {
         //     token: getItem()
         // }
     })
+}
+
+//作用 抽取学科接口
+export const subject = {
+    // 新增
+    add(data) {
+        return axios({
+            url: "/subject/add",
+            method: "post",
+            data
+        })
+    },
+    // 列表
+    // get请求的参数用params来传递
+    list(params) {
+        return axios({
+            url: "/subject/list",
+            method: "get",
+            params
+        })
+    },
+    // 状态
+    status(data) {
+        return axios({
+            url: "/subject/status",
+            method: "post",
+            data
+        })
+    },
+    // 编辑
+    edit(data) {
+        return axios({
+            url: "/subject/edit",
+            method: "post",
+            data
+        })
+    },
+    // 删除
+    remove(data) {
+        return axios({
+            url: "/subject/remove",
+            method: "post",
+            data
+        })
+    },
 }
 

@@ -54,11 +54,13 @@
       <!-- 分页器 -->
       <el-pagination
         background
-        :current-page="1"
-        :page-sizes="[5, 10, 15, 20]"
-        :page-size="100"
+        :current-page="page"
+        :page-sizes="pageSize"
+        :page-size="limit"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="36"
+        :total="total"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
       >
       </el-pagination>
     </el-card>
@@ -78,7 +80,11 @@ export default {
       //页码
       page:1,
       //页容量
-      limit:10
+      limit:10,
+      //页面数组
+      pageSize:[5, 10, 15, 20],
+      //总条数
+      total:0
     };
   },
   //生命接口  data创建了
@@ -92,19 +98,40 @@ export default {
       window.console.log(res)
       //赋值给table
        this.tableData=res.data.data.items
+      // 保存 总条数
+        this.total = res.data.data.pagination.total;
     });
   },
   methods: {
-    search(){
-      //1.axios方法使用
+    getList(){
+      //数据请求 
       subject.list({
         page:this.page,limit:this.limit,...this.formInline
       }).then(res=>{
         //成功回调
         window.console.log(res)
+
         //赋值给table
        this.tableData=res.data.data.items
+       //保存总条数的值
+       this.total=res.data.data.pagination.total
       });
+    },
+    search(){
+      //1.axios方法使用
+      this.page=1;
+      this.getList()
+    },
+    //页容量改变 
+    handleSizeChange(size){
+      this.page=1
+      this.limit=size
+      this.getList()
+    },
+    //页码改变  
+    handleCurrentChange(current){
+      this.page=current
+      this.getList()
     }
   },
 };

@@ -120,6 +120,7 @@
         <el-button type="primary" @click="registerClick">注 册</el-button>
       </div>
     </el-dialog>
+    
   </div>
 </template>
 
@@ -127,6 +128,8 @@
 <script>
 // 导入抽取的api 方法
 import { login, register, sendsms } from "../../api/api.js";
+//导入抽取token的 方法
+import {setItem} from '../../utils/token.js'
 //导入axios
 // import axios from "axios";
 export default {
@@ -284,13 +287,13 @@ export default {
           this.ISdisabled = false;
           this.btnValue = `获取短信验证码`;
         }
-      }, 1000);
+      }, 200);
     },
 
     /* 文件上传成功之后会触发的回调函数 */
     handleAvatarSuccess(res, file) {
       this.imageUrl = URL.createObjectURL(file.raw);
-      window.console.log(res);
+      // window.console.log(res);
       this.registerForm.avatar = res.data.file_path;
     },
     /* 文件上传之前对文件做的一些限制 */
@@ -337,12 +340,15 @@ export default {
             window.console.log(res);
             if (res.data.code == 200) {
               this.$message.success("登录成功了哦!");
+              // window.console.log(res)
+              setItem(res.data.data.token),
+              this.$router.push('/index')
             } else {
               this.$message.warning("傻逼,忘记密码了吧");
             }
           });
         } else {
-          window.console.log("error submit!!");
+          // window.console.log("error submit!!");
           return false;
         }
       });
