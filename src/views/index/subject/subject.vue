@@ -22,7 +22,7 @@
         <el-form-item>
           <el-button type="primary" @click="search">搜索</el-button>
           <el-button>清除</el-button>
-          <el-button type="primary" icon="el-icon-plus" @click="dialogFormVisible=true">新增学科</el-button>
+          <el-button type="primary" icon="el-icon-plus" @click="addFormVisible=true">新增学科</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -45,10 +45,8 @@
         <el-table-column label="操作">
           <!-- 插槽 -->
           <template slot-scope="scope">
-            <el-button type="text">编辑</el-button>
-            <el-button type="text" @click="status(scope.row)">
-              {{scope.row.status==1?'禁用':'启用'}}
-            </el-button>
+            <el-button type="text" @click="showEdit(scope.row)">编辑</el-button>
+            <el-button type="text" @click="status(scope.row)">{{scope.row.status==1?'禁用':'启用'}}</el-button>
             <el-button type="text" @click="remove(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -66,7 +64,7 @@
       ></el-pagination>
     </el-card>
     <!-- 新增对话框 -->
-    <el-dialog title="新增学科" :visible.sync="dialogFormVisible">
+    <el-dialog title="新增学科" :visible.sync="addFormVisible">
       <el-form :model="addForm" :rules="rules" ref="addForm">
         <el-form-item label="学科编号" :label-width="formLabelWidth" prop="rid">
           <el-input v-model="addForm.rid" autocomplete="off"></el-input>
@@ -85,8 +83,33 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button @click="addFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="submitAdd">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 编辑弹框 -->
+    <el-dialog title="新增学科" :visible.sync="editFormVisible">
+      <el-form :model="editForm" :rules="rules" ref="editForm">
+        <el-form-item label="学科编号" :label-width="formLabelWidth" prop="rid">
+          <el-input v-model="editForm.rid" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="学科名称" :label-width="formLabelWidth" prop="name">
+          <el-input v-model="editForm.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="学科简称" :label-width="formLabelWidth">
+          <el-input v-model="editForm.short_name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="学科简介" :label-width="formLabelWidth">
+          <el-input type="textarea" :row="2" v-model="editForm.intro" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="学科备注" :label-width="formLabelWidth">
+          <el-input v-model="editForm.remark" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitEdit">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -115,14 +138,19 @@ export default {
       /* 新增表单数据 */
       addForm: {},
       //新增表单是否显示
-      dialogFormVisible: false,
+      addFormVisible: false,
       //表单左边文字lable的宽度 不设置的话不能再同一行
       formLabelWidth: "100px",
       //表单验证规则
       rules: {
         rid: [{ required: true, message: "学科编号不能为空" }],
         name: [{ required: true, message: "学科名称不能为空" }]
-      }
+      },
+
+      /*编辑表单数据 */
+      editForm: {},
+      //编辑表单是否显示
+      editFormVisible: false
     };
   },
   //生命接口  data创建了
@@ -189,8 +217,8 @@ export default {
             window.console.log(res);
 
             if (res.data.code == 200) {
-              this.dialogFormVisible = false;
-              this.$message.success(res.data.message);
+              this.addFormVisible = false;
+              //this.$message.success(res.data.message);
               // 重新获取一次
               this.getList();
             }
@@ -218,9 +246,9 @@ export default {
             .then(res => {
               //成功回调
               window.console.log(res);
-              if(res.data.code==200){
-                this.$message.success(res.data.message)
-                this.getList()
+              if (res.data.code == 200) {
+                //this.$message.success(res.data.message)
+                this.getList();
               }
             });
         })
@@ -233,17 +261,54 @@ export default {
       //1.axios方法使用
     },
     //启用禁用切换
-    status(data){
+    status(data) {
       //1.axios方法使用
-      subject.status({
-        id:data.id,
-        status:data.status==1?0:1
-      }).then(res=>{
-        //成功回调
-        // window.console.log(res)
-        if(res.data.code==200){
-          this.$message.success(res.data.message);
-          this.getList()
+      subject
+        .status({
+          id: data.id,
+          status: data.status == 1 ? 0 : 1
+        })
+        .then(res => {
+          //成功回调
+          // window.console.log(res)
+          if (res.data.code == 200) {
+            //this.$message.success(res.data.message);
+            this.getList();
+          }
+        });
+    },
+    //点击编辑按钮
+    showEdit(data) {
+      window.console.log(data);
+      this.editFormVisible = true;
+      // this.editForm = data;
+       // 修改数据 浅拷贝
+      // this.editForm = data;
+      // 为了不联动 改为 深拷贝
+      this.editForm = JSON.parse(JSON.stringify(data));
+    },
+    //编辑表单
+    submitEdit() {
+      //编辑表单
+      this.$refs.editForm.validate(valid => {
+        if (valid) {
+          //新增成功
+          //调用接口
+          //1.axios方法使用
+          subject.edit(this.editForm).then(res => {
+            //成功回调
+            window.console.log(res);
+
+            if (res.data.code == 200) {
+              this.editFormVisible = false;
+              // 重新获取一次
+              this.getList();
+            }
+          });
+        } else {
+          //失败
+          this.$message.warning("小老弟");
+          return false;
         }
       });
     }

@@ -41,6 +41,9 @@ axios.interceptors.response.use(function (response) {
         Message.error(response.data.message);
         return;
     }
+    if(response.data.code==200){
+        Message.success(response.data.message)
+    }
     return response;
 }, function (error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
